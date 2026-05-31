@@ -29,8 +29,8 @@ import google.generativeai as genai
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # STEP 2 ── API KEYS  ← তোমার key এখানে বসাও
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-GROQ_API_KEY   = "your_groq_api_key_here"     # groq.com → API Keys
-GEMINI_API_KEY = "your_gemini_api_key_here"   # aistudio.google.com
+GROQ_API_KEY   = "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"     # groq.com → API Keys
+GEMINI_API_KEY = "AQ.Ab8RN6LgOvvLAx7bLwNGys9XFJYINYvR9pLxIRDWz7GPQxK4Vw"   # aistudio.google.com
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # STEP 3 ── Configuration
