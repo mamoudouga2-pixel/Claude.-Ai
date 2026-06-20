@@ -1,0 +1,18 @@
+{
+  "name": "khoj-ai-search-backend",
+  "version": "1.0.0",
+  "description": "Backend for the Khoj AI Search app — Gemini + Groq + DuckDuckGo + SearXNG search pipeline.",
+  "main": "app.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
