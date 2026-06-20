@@ -1,0 +1,1301 @@
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  Menu, Plus, Mic, Square, ImagePlus, ArrowUp, ChevronLeft, ChevronRight,
+  X, ExternalLink, User, History, Settings as SettingsIcon, ShieldCheck,
+  HelpCircle, Info, LogOut, Moon, Sun, Languages, Trash2, Globe
+} from "lucide-react";
+
+/* ---------------------------------------------------------------------- */
+/* Strings / i18n                                                         */
+/* ---------------------------------------------------------------------- */
+
+const STRINGS = {
+  bn: {
+    tagline: "আপনার তথ্য আপনারই",
+    askPlaceholder: "আপনার প্রশ্ন লিখুন...",
+    greeting: "আজ আপনি কী জানতে চান?",
+    signIn: "Google দিয়ে সাইন ইন করুন",
+    signingIn: "সাইন ইন করা হচ্ছে...",
+    mockNotice: "এই প্রোটোটাইপে আসল Google অ্যাকাউন্ট সংযুক্ত নয়",
+    menuProfile: "প্রোফাইল",
+    menuHistory: "চ্যাট হিস্টরি",
+    menuSettings: "সেটিংস",
+    menuPrivacy: "প্রাইভেসি",
+    menuHelp: "সাহায্য",
+    menuAbout: "অ্যাপ সম্পর্কে",
+    menuLogout: "লগ আউট",
+    sourcesNone: "কোনো সোর্স পাওয়া যায়নি",
+    sourcesSheetTitle: "সোর্স",
+    openSource: "ওপেন করুন",
+    thinking1: "তথ্য বিশ্লেষণ করা হচ্ছে...",
+    thinking2: "উত্তর প্রস্তুত করা হচ্ছে...",
+    errorAnswer: "উত্তর তৈরি করা সম্ভব হয়নি। আবার চেষ্টা করুন।",
+    retry: "আবার চেষ্টা করুন",
+    profileTitle: "প্রোফাইল",
+    questionsAsked: "মোট প্রশ্ন",
+    totalChatsLabel: "মোট চ্যাট",
+    joinedLabel: "যোগদান",
+    settingsTitle: "সেটিংস",
+    themeLabel: "থিম",
+    lightLabel: "লাইট",
+    darkLabel: "ডার্ক",
+    languageLabel: "ভাষা",
+    bengaliLabel: "বাংলা",
+    englishLabel: "English",
+    dangerZone: "ডেটা মুছে ফেলুন",
+    deleteDataLabel: "সব ডেটা মুছে ফেলুন",
+    deleteConfirmLabel: "নিশ্চিত করতে আবার চাপুন",
+    privacyTitle: "প্রাইভেসি",
+    privacyBody1: "আপনার তথ্য আপনারই — এটাই আমাদের মূল নীতি।",
+    privacyBody2: "আপনার ব্যক্তিগত তথ্য কখনও বিক্রি করা হয় না, অপ্রয়োজনীয় ট্র্যাকিং করা হয় না, এবং অনুমতি ছাড়া কোনো তথ্য তৃতীয় পক্ষের সাথে শেয়ার করা হয় না।",
+    privacyBody3: "আপনার চ্যাট ও প্রোফাইল তথ্য শুধুমাত্র আপনার ডিভাইসের সাথে যুক্ত এই সেশনে সংরক্ষিত থাকে।",
+    helpTitle: "সাহায্য",
+    helpBody1: "প্রশ্ন লিখুন বা মাইক্রোফোনে বলুন, তারপর Send চাপুন।",
+    helpBody2: "ছবি সংযুক্ত করতে ছবি আইকনে চাপুন — AI ছবিটি বিশ্লেষণ করে উত্তর দেবে।",
+    helpBody3: "উত্তরের উপরে থাকা 'Sources' বাটনে চাপলে তথ্যসূত্র দেখতে পাবেন।",
+    aboutTitle: "অ্যাপ সম্পর্কে",
+    aboutBody1: "খোঁজ একটি দ্রুত, পরিষ্কার এবং প্রাইভেসি-প্রথম AI সার্চ অ্যাপ।",
+    aboutBody2: "কোনো বিজ্ঞাপন নেই, কোনো বিভ্রান্তি নেই — শুধু আপনার প্রশ্ন আর তার উত্তর।",
+    emptyHistory: "এখনও কোনো চ্যাট হিস্টরি নেই।",
+    exampleLabel: "উদাহরণ",
+    voiceUnsupported: "এই ব্রাউজারে ভয়েস সার্চ সমর্থিত নয়",
+    voiceError: "ভয়েস শোনা সম্ভব হয়নি, আবার চেষ্টা করুন",
+    removeImage: "ছবি বাতিল করুন",
+    newChat: "নতুন চ্যাট",
+    imageSearchTitle: "ছবি অনুসন্ধান",
+  },
+  en: {
+    tagline: "Your data stays yours.",
+    askPlaceholder: "Ask anything...",
+    greeting: "What do you want to know today?",
+    signIn: "Continue with Google",
+    signingIn: "Signing in...",
+    mockNotice: "No real Google account is connected in this prototype",
+    menuProfile: "Profile",
+    menuHistory: "Chat history",
+    menuSettings: "Settings",
+    menuPrivacy: "Privacy",
+    menuHelp: "Help",
+    menuAbout: "About",
+    menuLogout: "Log out",
+    sourcesNone: "No sources found",
+    sourcesSheetTitle: "Sources",
+    openSource: "Open",
+    thinking1: "Analyzing information...",
+    thinking2: "Preparing your answer...",
+    errorAnswer: "Couldn't generate an answer. Please try again.",
+    retry: "Try again",
+    profileTitle: "Profile",
+    questionsAsked: "Questions asked",
+    totalChatsLabel: "Total chats",
+    joinedLabel: "Joined",
+    settingsTitle: "Settings",
+    themeLabel: "Theme",
+    lightLabel: "Light",
+    darkLabel: "Dark",
+    languageLabel: "Language",
+    bengaliLabel: "বাংলা",
+    englishLabel: "English",
+    dangerZone: "Delete data",
+    deleteDataLabel: "Delete all data",
+    deleteConfirmLabel: "Tap again to confirm",
+    privacyTitle: "Privacy",
+    privacyBody1: "Your data stays yours — that's our core principle.",
+    privacyBody2: "We never sell your personal information, never run unnecessary tracking, and never share data with third parties without your permission.",
+    privacyBody3: "Your chats and profile are stored only with this session, tied to your device.",
+    helpTitle: "Help",
+    helpBody1: "Type your question or speak it into the microphone, then tap send.",
+    helpBody2: "Tap the image icon to attach a photo — the AI will analyze it and answer.",
+    helpBody3: "Tap the 'Sources' button above an answer to see where it came from.",
+    aboutTitle: "About",
+    aboutBody1: "Khoj is a fast, clean, privacy-first AI search app.",
+    aboutBody2: "No ads, no distractions — just your question and its answer.",
+    emptyHistory: "No chat history yet.",
+    exampleLabel: "Example",
+    voiceUnsupported: "Voice search isn't supported in this browser",
+    voiceError: "Couldn't hear you, please try again",
+    removeImage: "Remove image",
+    newChat: "New chat",
+    imageSearchTitle: "Image search",
+  },
+};
+
+const APP_NAME = "খোঁজ";
+
+function uid() {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Storage helpers — window.storage, personal scope only                  */
+/* ---------------------------------------------------------------------- */
+
+const STORAGE = {
+  async getProfile() {
+    try {
+      const r = await window.storage.get("profile", false);
+      return r ? JSON.parse(r.value) : null;
+    } catch {
+      return null;
+    }
+  },
+  async setProfile(p) {
+    try {
+      await window.storage.set("profile", JSON.stringify(p), false);
+    } catch {}
+  },
+  async getChatList() {
+    try {
+      const r = await window.storage.get("chatList", false);
+      return r ? JSON.parse(r.value) : [];
+    } catch {
+      return [];
+    }
+  },
+  async setChatList(list) {
+    try {
+      await window.storage.set("chatList", JSON.stringify(list), false);
+    } catch {}
+  },
+  async getChat(id) {
+    try {
+      const r = await window.storage.get("chat:" + id, false);
+      return r ? JSON.parse(r.value) : null;
+    } catch {
+      return null;
+    }
+  },
+  async setChat(id, title, messages) {
+    try {
+      await window.storage.set(
+        "chat:" + id,
+        JSON.stringify({ id, title, messages, updatedAt: Date.now() }),
+        false
+      );
+    } catch {}
+  },
+  async deleteAll(chatIds) {
+    try {
+      await window.storage.delete("profile", false);
+    } catch {}
+    try {
+      await window.storage.delete("chatList", false);
+    } catch {}
+    for (const id of chatIds) {
+      try {
+        await window.storage.delete("chat:" + id, false);
+      } catch {}
+    }
+  },
+};
+
+/* ---------------------------------------------------------------------- */
+/* Backend API call                                                       */
+/* ---------------------------------------------------------------------- */
+/* The actual search + reasoning pipeline (Gemini, Groq, DuckDuckGo,      */
+/* SearXNG, page fetching) lives in the separate backend project. This    */
+/* frontend just calls one endpoint and renders whatever comes back.      */
+
+// 👉 Replace with your deployed backend's URL (no trailing slash).
+const API_BASE_URL = "https://your-backend-url.example.com";
+
+async function askBackend({ question, image, language }) {
+  const res = await fetch(API_BASE_URL + "/api/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, image, language }),
+  });
+  if (!res.ok) throw new Error("network");
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Gear logo — the signature element                                      */
+/* ---------------------------------------------------------------------- */
+
+function GearLogo({ size = 28, state = "idle" }) {
+  const spinClass = state === "thinking" ? "gear-spin-fast" : "gear-spin-slow";
+  const glowClass = state === "thinking" ? "gear-glow" : "";
+  const teeth = [0, 1, 2, 3, 4, 5, 6, 7];
+  return (
+    <div className={"gear-wrap " + glowClass} style={{ width: size, height: size }}>
+      <svg viewBox="0 0 100 100" width={size} height={size} className={spinClass}>
+        <defs>
+          <linearGradient id="gearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="var(--accent)" stopOpacity="1" />
+            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.55" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(50,50)">
+          {teeth.map((i) => (
+            <rect
+              key={i}
+              x="-6"
+              y="-46"
+              width="12"
+              height="18"
+              rx="5"
+              transform={"rotate(" + i * 45 + ")"}
+              fill="url(#gearGrad)"
+            />
+          ))}
+          <circle r="30" fill="url(#gearGrad)" />
+          <circle r="21" fill="var(--surface-solid)" />
+          <circle r="5" fill="var(--accent)" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Small building blocks                                                  */
+/* ---------------------------------------------------------------------- */
+
+function StatusBar() {
+  return (
+    <div className="status-bar">
+      <span className="status-time">৯:৪১</span>
+      <div className="status-icons">
+        <span className="status-dot" />
+        <span className="status-dot" />
+        <span className="status-dot" />
+      </div>
+    </div>
+  );
+}
+
+function ScreenPanel({ open, title, onBack, children }) {
+  return (
+    <div className={"panel" + (open ? " panel-open" : "")}>
+      <div className="panel-header">
+        <button className="icon-btn" onClick={onBack} aria-label="back">
+          <ChevronLeft size={22} />
+        </button>
+        <span className="panel-title">{title}</span>
+        <span style={{ width: 38 }} />
+      </div>
+      <div className="panel-body">{children}</div>
+    </div>
+  );
+}
+
+function MenuItem({ icon, label, onClick, danger }) {
+  return (
+    <button className={"drawer-item" + (danger ? " drawer-item-danger" : "")} onClick={onClick}>
+      <span className="drawer-item-icon">{icon}</span>
+      <span className="drawer-item-label">{label}</span>
+      <ChevronRight size={16} className="drawer-item-chevron" />
+    </button>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Main App                                                                */
+/* ---------------------------------------------------------------------- */
+
+export default function KhojApp() {
+  const [screen, setScreen] = useState("boot"); // boot | login | app
+  const [theme, setTheme] = useState("light");
+  const [language, setLanguage] = useState("bn");
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  const [profile, setProfile] = useState(null);
+  const [chats, setChats] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(uid());
+  const [messages, setMessages] = useState([]);
+
+  const [composeText, setComposeText] = useState("");
+  const [pendingImage, setPendingImage] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState(null);
+  const [sourcesFor, setSourcesFor] = useState(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const fileInputRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const toastTimerRef = useRef(null);
+  const scrollRef = useRef(null);
+
+  const t = useCallback((key) => STRINGS[language][key], [language]);
+
+  /* boot sequence */
+  useEffect(() => {
+    let timer;
+    (async () => {
+      const existing = await STORAGE.getProfile();
+      timer = setTimeout(async () => {
+        if (existing) {
+          setProfile(existing);
+          const list = await STORAGE.getChatList();
+          setChats(list);
+          setScreen("app");
+        } else {
+          setScreen("login");
+        }
+      }, 2200);
+    })();
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  function showToast(msg) {
+    setToast(msg);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(null), 2600);
+  }
+
+  async function handleGoogleLogin() {
+    setLoggingIn(true);
+    let p = await STORAGE.getProfile();
+    if (!p) {
+      p = {
+        name: language === "en" ? "You" : "আপনি",
+        email: "user@gmail.com",
+        joinDate: new Date().toISOString(),
+        totalQuestions: 0,
+        totalChats: 0,
+      };
+      await STORAGE.setProfile(p);
+    }
+    const list = await STORAGE.getChatList();
+    setChats(list);
+    setProfile(p);
+    setLoggingIn(false);
+    setScreen("app");
+  }
+
+  function handleLogout() {
+    setMenuOpen(false);
+    setActivePanel(null);
+    setMessages([]);
+    setCurrentChatId(uid());
+    setScreen("login");
+  }
+
+  async function handleDeleteAllData() {
+    const ids = chats.map((c) => c.id);
+    await STORAGE.deleteAll(ids);
+    setProfile(null);
+    setChats([]);
+    setMessages([]);
+    setCurrentChatId(uid());
+    setConfirmingDelete(false);
+    setActivePanel(null);
+    setMenuOpen(false);
+    setScreen("login");
+  }
+
+  function handleNewChat() {
+    if (messages.length === 0) {
+      setMenuOpen(false);
+      return;
+    }
+    setCurrentChatId(uid());
+    setMessages([]);
+    setPendingImage(null);
+    setComposeText("");
+    setMenuOpen(false);
+  }
+
+  async function handleOpenChat(id) {
+    const chat = await STORAGE.getChat(id);
+    if (chat) {
+      setCurrentChatId(id);
+      setMessages(chat.messages || []);
+    }
+    setActivePanel(null);
+  }
+
+  async function persistTurn(finalMessages, fallbackTitle) {
+    let list = chats;
+    let entry = list.find((c) => c.id === currentChatId);
+    const title = (entry && entry.title) || fallbackTitle || t("newChat");
+    if (!entry) {
+      entry = { id: currentChatId, title, updatedAt: Date.now() };
+      list = [entry, ...list];
+    } else {
+      entry = { ...entry, updatedAt: Date.now() };
+      list = list.map((c) => (c.id === currentChatId ? entry : c));
+    }
+    setChats(list);
+    await STORAGE.setChatList(list);
+    await STORAGE.setChat(currentChatId, title, finalMessages);
+
+    const updatedProfile = {
+      ...profile,
+      totalQuestions: ((profile && profile.totalQuestions) || 0) + 1,
+      totalChats: list.length,
+    };
+    setProfile(updatedProfile);
+    await STORAGE.setProfile(updatedProfile);
+  }
+
+  async function runTurn(userMsg, aiMsgId, baseMessages) {
+    let result, status;
+    try {
+      result = await askBackend({
+        question: userMsg.text,
+        image: pendingImageRefToPayload(userMsg.imagePayload),
+        language,
+      });
+      status = "done";
+    } catch (e) {
+      result = null;
+      status = "error";
+    }
+    const finalMessages = baseMessages.map((m) =>
+      m.id === aiMsgId ? { ...m, status, content: result } : m
+    );
+    setMessages(finalMessages);
+    if (status === "done") {
+      const fallbackTitle =
+        userMsg.text || (userMsg.image ? t("imageSearchTitle") : t("newChat"));
+      await persistTurn(finalMessages, fallbackTitle);
+    }
+  }
+
+  function pendingImageRefToPayload(imagePayload) {
+    return imagePayload || null;
+  }
+
+  async function handleSend() {
+    const text = composeText.trim();
+    if (!text && !pendingImage) return;
+    const userMsg = {
+      id: uid(),
+      role: "user",
+      text,
+      image: pendingImage ? pendingImage.dataUrl : null,
+      imagePayload: pendingImage
+        ? { data: pendingImage.base64, mediaType: pendingImage.mediaType }
+        : null,
+    };
+    const aiMsg = { id: uid(), role: "ai", status: "thinking", content: null };
+    const baseMessages = [...messages, userMsg, aiMsg];
+    setMessages(baseMessages);
+    setComposeText("");
+    setPendingImage(null);
+    await runTurn(userMsg, aiMsg.id, baseMessages);
+  }
+
+  async function handleRetry(aiMsgId) {
+    const idx = messages.findIndex((m) => m.id === aiMsgId);
+    if (idx < 1) return;
+    const userMsg = messages[idx - 1];
+    const baseMessages = messages.map((m) =>
+      m.id === aiMsgId ? { ...m, status: "thinking", content: null } : m
+    );
+    setMessages(baseMessages);
+    await runTurn(userMsg, aiMsgId, baseMessages);
+  }
+
+  function handleFilePicked(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result);
+      const commaIdx = dataUrl.indexOf(",");
+      const meta = dataUrl.slice(0, commaIdx);
+      const base64 = dataUrl.slice(commaIdx + 1);
+      const match = meta.match(/data:(.*);base64/);
+      const mediaType = match ? match[1] : "image/jpeg";
+      setPendingImage({ dataUrl, base64, mediaType });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+
+  function toggleListen() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      showToast(t("voiceUnsupported"));
+      return;
+    }
+    if (isListening) {
+      if (recognitionRef.current) recognitionRef.current.stop();
+      return;
+    }
+    const rec = new SR();
+    rec.lang = language === "en" ? "en-US" : "bn-BD";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    rec.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setComposeText((prev) => (prev ? prev + " " : "") + transcript);
+    };
+    rec.onerror = () => {
+      setIsListening(false);
+      showToast(t("voiceError"));
+    };
+    rec.onend = () => setIsListening(false);
+    recognitionRef.current = rec;
+    rec.start();
+    setIsListening(true);
+  }
+
+  const isBusy = messages.some((m) => m.status === "thinking");
+  const sourcesMessage = sourcesFor ? messages.find((m) => m.id === sourcesFor) : null;
+  const sourcesList =
+    sourcesMessage && sourcesMessage.content && Array.isArray(sourcesMessage.content.sources)
+      ? sourcesMessage.content.sources
+      : [];
+
+  /* ---------------------------- render: boot ---------------------------- */
+
+  if (screen === "boot") {
+    return (
+      <Shell theme={theme}>
+        <div className="splash">
+          <GearLogo size={84} state="idle" />
+          <div className="splash-name">{APP_NAME}</div>
+        </div>
+      </Shell>
+    );
+  }
+
+  /* ---------------------------- render: login ---------------------------- */
+
+  if (screen === "login") {
+    return (
+      <Shell theme={theme}>
+        <div className="login">
+          <div className="login-top">
+            <GearLogo size={64} state="idle" />
+            <div className="login-name">{APP_NAME}</div>
+            <div className="login-tagline">{t("tagline")}</div>
+          </div>
+          <div className="login-bottom">
+            <button className="google-btn" onClick={handleGoogleLogin} disabled={loggingIn}>
+              <GoogleMark />
+              <span>{loggingIn ? t("signingIn") : t("signIn")}</span>
+            </button>
+            <div className="login-mock-notice">{t("mockNotice")}</div>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  /* ---------------------------- render: app ---------------------------- */
+
+  const aiState = isBusy ? "thinking" : "idle";
+
+  return (
+    <Shell theme={theme}>
+      <div className="app-root">
+        <div className="top-bar">
+          <button className="icon-btn" onClick={() => setMenuOpen(true)} aria-label="menu">
+            <Menu size={22} />
+          </button>
+          <GearLogo size={26} state={aiState} />
+          <button className="icon-btn" onClick={handleNewChat} aria-label="new chat">
+            <Plus size={22} />
+          </button>
+        </div>
+
+        {messages.length === 0 ? (
+          <div className="greeting">{t("greeting")}</div>
+        ) : (
+          <div className="chat-scroll" ref={scrollRef}>
+            {messages.map((m) =>
+              m.role === "user" ? (
+                <UserBubble key={m.id} msg={m} />
+              ) : (
+                <AiCard
+                  key={m.id}
+                  msg={m}
+                  t={t}
+                  onOpenSources={() => setSourcesFor(m.id)}
+                  onRetry={() => handleRetry(m.id)}
+                />
+              )
+            )}
+          </div>
+        )}
+
+        <ComposeBar
+          t={t}
+          value={composeText}
+          onChange={setComposeText}
+          onSend={handleSend}
+          disabled={isBusy}
+          isListening={isListening}
+          onMic={toggleListen}
+          onPickImage={() => fileInputRef.current && fileInputRef.current.click()}
+          pendingImage={pendingImage}
+          onRemoveImage={() => setPendingImage(null)}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleFilePicked}
+        />
+
+        {/* drawer */}
+        <div
+          className={"drawer-backdrop" + (menuOpen ? " backdrop-open" : "")}
+          onClick={() => setMenuOpen(false)}
+        />
+        <div className={"drawer" + (menuOpen ? " drawer-open" : "")}>
+          <div className="drawer-profile">
+            <div className="avatar">{(profile && profile.name && profile.name[0]) || "খ"}</div>
+            <div>
+              <div className="drawer-profile-name">{(profile && profile.name) || ""}</div>
+              <div className="drawer-profile-email">{(profile && profile.email) || ""}</div>
+            </div>
+          </div>
+          <MenuItem icon={<User size={18} />} label={t("menuProfile")} onClick={() => { setActivePanel("profile"); setMenuOpen(false); }} />
+          <MenuItem icon={<History size={18} />} label={t("menuHistory")} onClick={() => { setActivePanel("history"); setMenuOpen(false); }} />
+          <MenuItem icon={<SettingsIcon size={18} />} label={t("menuSettings")} onClick={() => { setActivePanel("settings"); setMenuOpen(false); }} />
+          <MenuItem icon={<ShieldCheck size={18} />} label={t("menuPrivacy")} onClick={() => { setActivePanel("privacy"); setMenuOpen(false); }} />
+          <MenuItem icon={<HelpCircle size={18} />} label={t("menuHelp")} onClick={() => { setActivePanel("help"); setMenuOpen(false); }} />
+          <MenuItem icon={<Info size={18} />} label={t("menuAbout")} onClick={() => { setActivePanel("about"); setMenuOpen(false); }} />
+          <div className="drawer-divider" />
+          <MenuItem icon={<LogOut size={18} />} label={t("menuLogout")} onClick={handleLogout} danger />
+        </div>
+
+        {/* panels */}
+        <ScreenPanel open={activePanel === "profile"} title={t("profileTitle")} onBack={() => setActivePanel(null)}>
+          <div className="profile-avatar-big">{(profile && profile.name && profile.name[0]) || "খ"}</div>
+          <div className="profile-name-big">{(profile && profile.name) || ""}</div>
+          <div className="profile-email-big">{(profile && profile.email) || ""}</div>
+          <div className="stat-row">
+            <div className="stat-card">
+              <div className="stat-num">{(profile && profile.totalQuestions) || 0}</div>
+              <div className="stat-label">{t("questionsAsked")}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-num">{(profile && profile.totalChats) || chats.length}</div>
+              <div className="stat-label">{t("totalChatsLabel")}</div>
+            </div>
+          </div>
+          <div className="profile-join">
+            {t("joinedLabel")}:{" "}
+            {profile && profile.joinDate ? new Date(profile.joinDate).toLocaleDateString() : ""}
+          </div>
+        </ScreenPanel>
+
+        <ScreenPanel open={activePanel === "history"} title={t("menuHistory")} onBack={() => setActivePanel(null)}>
+          {chats.length === 0 ? (
+            <div className="empty-text">{t("emptyHistory")}</div>
+          ) : (
+            chats
+              .slice()
+              .sort((a, b) => b.updatedAt - a.updatedAt)
+              .map((c) => (
+                <button key={c.id} className="history-item" onClick={() => handleOpenChat(c.id)}>
+                  <History size={16} />
+                  <span className="history-item-title">{c.title}</span>
+                  <ChevronRight size={16} />
+                </button>
+              ))
+          )}
+        </ScreenPanel>
+
+        <ScreenPanel open={activePanel === "settings"} title={t("settingsTitle")} onBack={() => setActivePanel(null)}>
+          <div className="settings-row">
+            <span className="settings-label">
+              {theme === "light" ? <Sun size={17} /> : <Moon size={17} />} {t("themeLabel")}
+            </span>
+            <div className="segmented">
+              <button
+                className={"segmented-option" + (theme === "light" ? " segmented-active" : "")}
+                onClick={() => setTheme("light")}
+              >
+                {t("lightLabel")}
+              </button>
+              <button
+                className={"segmented-option" + (theme === "dark" ? " segmented-active" : "")}
+                onClick={() => setTheme("dark")}
+              >
+                {t("darkLabel")}
+              </button>
+            </div>
+          </div>
+          <div className="settings-row">
+            <span className="settings-label">
+              <Languages size={17} /> {t("languageLabel")}
+            </span>
+            <div className="segmented">
+              <button
+                className={"segmented-option" + (language === "bn" ? " segmented-active" : "")}
+                onClick={() => setLanguage("bn")}
+              >
+                {t("bengaliLabel")}
+              </button>
+              <button
+                className={"segmented-option" + (language === "en" ? " segmented-active" : "")}
+                onClick={() => setLanguage("en")}
+              >
+                {t("englishLabel")}
+              </button>
+            </div>
+          </div>
+          <div className="settings-divider" />
+          <div className="settings-danger-label">{t("dangerZone")}</div>
+          <button
+            className="danger-btn"
+            onClick={() => {
+              if (confirmingDelete) handleDeleteAllData();
+              else setConfirmingDelete(true);
+            }}
+          >
+            <Trash2 size={16} />
+            {confirmingDelete ? t("deleteConfirmLabel") : t("deleteDataLabel")}
+          </button>
+        </ScreenPanel>
+
+        <ScreenPanel open={activePanel === "privacy"} title={t("privacyTitle")} onBack={() => setActivePanel(null)}>
+          <p className="panel-paragraph">{t("privacyBody1")}</p>
+          <p className="panel-paragraph">{t("privacyBody2")}</p>
+          <p className="panel-paragraph">{t("privacyBody3")}</p>
+        </ScreenPanel>
+
+        <ScreenPanel open={activePanel === "help"} title={t("helpTitle")} onBack={() => setActivePanel(null)}>
+          <p className="panel-paragraph">{t("helpBody1")}</p>
+          <p className="panel-paragraph">{t("helpBody2")}</p>
+          <p className="panel-paragraph">{t("helpBody3")}</p>
+        </ScreenPanel>
+
+        <ScreenPanel open={activePanel === "about"} title={t("aboutTitle")} onBack={() => setActivePanel(null)}>
+          <div className="about-logo">
+            <GearLogo size={48} state="idle" />
+          </div>
+          <p className="panel-paragraph">{t("aboutBody1")}</p>
+          <p className="panel-paragraph">{t("aboutBody2")}</p>
+        </ScreenPanel>
+
+        {/* sources sheet */}
+        <div
+          className={"sheet-backdrop" + (sourcesFor ? " backdrop-open" : "")}
+          onClick={() => setSourcesFor(null)}
+        />
+        <div className={"sheet" + (sourcesFor ? " sheet-open" : "")}>
+          <div className="sheet-handle" />
+          <div className="sheet-title">{t("sourcesSheetTitle")}</div>
+          {sourcesList.length === 0 ? (
+            <div className="empty-text">{t("sourcesNone")}</div>
+          ) : (
+            sourcesList.map((s, i) => (
+              <div className="source-row" key={i}>
+                <SourceLogo logo={s.logo} domain={s.domain} />
+                <div className="source-info">
+                  <div className="source-name">{s.title}</div>
+                  <div className="source-domain">{s.domain}</div>
+                  {s.description && <div className="source-desc">{s.description}</div>}
+                  <div className="source-url">{s.url}</div>
+                </div>
+                <button
+                  className="source-open"
+                  onClick={() => window.open(s.url || "https://" + s.domain, "_blank")}
+                >
+                  <ExternalLink size={14} />
+                  {t("openSource")}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {toast && <div className="toast">{toast}</div>}
+      </div>
+    </Shell>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* Subcomponents                                                          */
+/* ---------------------------------------------------------------------- */
+
+function UserBubble({ msg }) {
+  return (
+    <div className="msg-row msg-row-user">
+      <div className="msg-user">
+        {msg.image && <img className="msg-user-image" src={msg.image} alt="" />}
+        {msg.text && <div>{msg.text}</div>}
+      </div>
+    </div>
+  );
+}
+
+function AiCard({ msg, t, onOpenSources, onRetry }) {
+  if (msg.status === "thinking") {
+    return (
+      <div className="msg-row">
+        <div className="thinking-row">
+          <GearLogo size={20} state="thinking" />
+          <span className="thinking-text">{t("thinking2")}</span>
+        </div>
+      </div>
+    );
+  }
+  if (msg.status === "error") {
+    return (
+      <div className="msg-row">
+        <div className="ai-card ai-card-error">
+          <div>{t("errorAnswer")}</div>
+          <button className="retry-btn" onClick={onRetry}>
+            {t("retry")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+  const content = msg.content || {};
+  const hasSources = Array.isArray(content.sources) && content.sources.length > 0;
+  return (
+    <div className="msg-row">
+      <div className="ai-card">
+        {hasSources && (
+          <div className="ai-card-header">
+            <button
+              className="globe-btn"
+              onClick={onOpenSources}
+              aria-label={t("sourcesSheetTitle") + " (" + content.sources.length + ")"}
+            >
+              <Globe size={16} />
+            </button>
+          </div>
+        )}
+        {content.shortAnswer && <div className="ai-short">{content.shortAnswer}</div>}
+        {content.detailedAnswer && <div className="ai-detailed">{content.detailedAnswer}</div>}
+        {Array.isArray(content.table && content.table.headers) && content.table.rows && (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  {content.table.headers.map((h, i) => (
+                    <th key={i}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {content.table.rows.map((row, ri) => (
+                  <tr key={ri}>
+                    {row.map((cell, ci) => (
+                      <td key={ci}>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {Array.isArray(content.bullets) && content.bullets.length > 0 && (
+          <ul className="bullet-list">
+            {content.bullets.map((b, i) => (
+              <li key={i}>{b}</li>
+            ))}
+          </ul>
+        )}
+        {content.example && (
+          <div className="example-box">
+            <span className="example-label">{t("exampleLabel")}</span>
+            {content.example}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SourceLogo({ logo, domain }) {
+  const [failed, setFailed] = useState(false);
+  if (!logo || failed) {
+    return <div className="source-logo-fallback">{((domain || "?")[0] || "?").toUpperCase()}</div>;
+  }
+  return <img className="source-logo" src={logo} alt="" onError={() => setFailed(true)} />;
+}
+
+function ComposeBar({
+  t,
+  value,
+  onChange,
+  onSend,
+  disabled,
+  isListening,
+  onMic,
+  onPickImage,
+  pendingImage,
+  onRemoveImage,
+}) {
+  function handleKeyDown(e) {
+    if (e.key === "Enter") onSend();
+  }
+  return (
+    <div className="compose-bar">
+      {pendingImage && (
+        <div className="compose-image-preview">
+          <img src={pendingImage.dataUrl} alt="" />
+          <button className="compose-image-remove" onClick={onRemoveImage}>
+            <X size={12} />
+          </button>
+        </div>
+      )}
+      <div className="compose-row">
+        <button className="compose-icon-btn" onClick={onPickImage} disabled={disabled}>
+          <ImagePlus size={19} />
+        </button>
+        <input
+          className="compose-input"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={t("askPlaceholder")}
+          disabled={disabled}
+        />
+        <button
+          className={"compose-icon-btn" + (isListening ? " mic-active" : "")}
+          onClick={onMic}
+          disabled={disabled}
+        >
+          {isListening ? <Square size={17} /> : <Mic size={19} />}
+        </button>
+        <button
+          className="send-btn"
+          onClick={onSend}
+          disabled={disabled || (!value.trim() && !pendingImage)}
+        >
+          <ArrowUp size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function GoogleMark() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z" />
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.7 0-14.3 4.4-17.7 10.7z" />
+      <path fill="#4CAF50" d="M24 44c5.5 0 10.5-2.1 14.3-5.5l-6.6-5.6C29.6 34.7 26.9 36 24 36c-5.3 0-9.7-3.1-11.3-7.6l-6.6 5.1C9.6 39.6 16.3 44 24 44z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.9l6.6 5.6C41.9 36.3 44 30.7 44 24c0-1.3-.1-2.7-.4-3.5z" />
+    </svg>
+  );
+}
+
+function Shell({ theme, children }) {
+  return (
+    <div className="page-backdrop">
+      <style>{CSS}</style>
+      <div className="frame" data-theme={theme}>
+        <StatusBar />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/* CSS                                                                    */
+/* ---------------------------------------------------------------------- */
+
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; }
+
+.page-backdrop {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 30% 20%, #f1f1f4, #e3e3e8);
+  padding: 28px 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans Bengali', 'Inter', sans-serif;
+}
+
+.frame {
+  width: 390px;
+  height: 820px;
+  max-height: 92vh;
+  border-radius: 46px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+.frame[data-theme="light"] {
+  --canvas: #FBFBFD;
+  --surface: rgba(255,255,255,0.7);
+  --surface-solid: #FFFFFF;
+  --surface-border: rgba(0,0,0,0.06);
+  --ink: #1D1D1F;
+  --mist: #6E6E73;
+  --divider: #E5E5EA;
+  --accent: #5E6AD2;
+  --accent-soft: rgba(94,106,210,0.12);
+  --danger: #FF3B30;
+}
+
+.frame[data-theme="dark"] {
+  --canvas: #000000;
+  --surface: rgba(28,28,30,0.72);
+  --surface-solid: #1C1C1E;
+  --surface-border: rgba(255,255,255,0.08);
+  --ink: #F5F5F7;
+  --mist: #98989D;
+  --divider: rgba(255,255,255,0.12);
+  --accent: #7B86E8;
+  --accent-soft: rgba(123,134,232,0.18);
+  --danger: #FF453A;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 26px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.status-icons { display: flex; gap: 4px; }
+.status-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink); opacity: 0.7; }
+
+/* gear */
+.gear-wrap { display: inline-flex; align-items: center; justify-content: center; }
+@keyframes gearSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.gear-spin-slow { animation: gearSpin 9s linear infinite; }
+.gear-spin-fast { animation: gearSpin 1.3s linear infinite; }
+.gear-glow { filter: drop-shadow(0 0 8px var(--accent-soft)); }
+@media (prefers-reduced-motion: reduce) {
+  .gear-spin-slow, .gear-spin-fast { animation: none; }
+}
+
+/* splash */
+.splash { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+.splash-name { font-size: 30px; font-weight: 700; letter-spacing: 0.5px; }
+
+/* login */
+.login { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 60px 32px 48px; }
+.login-top { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 60px; }
+.login-name { font-size: 28px; font-weight: 700; }
+.login-tagline { font-size: 14px; color: var(--mist); }
+.login-bottom { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.google-btn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 15px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-solid);
+  font-size: 15px; font-weight: 600; color: var(--ink);
+  cursor: pointer;
+}
+.google-btn:disabled { opacity: 0.6; }
+.login-mock-notice { font-size: 11px; color: var(--mist); text-align: center; padding: 0 12px; }
+
+/* app root */
+.app-root { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 18px 10px; flex-shrink: 0;
+}
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 12px; border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center; color: var(--ink); cursor: pointer;
+}
+.icon-btn:active { background: var(--accent-soft); }
+
+.greeting {
+  flex: 1; display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 60px; font-size: 19px; font-weight: 500; color: var(--mist); text-align: center;
+}
+
+.chat-scroll { flex: 1; overflow-y: auto; padding: 6px 16px; min-height: 0; }
+.msg-row { display: flex; margin-bottom: 14px; animation: riseIn 0.32s ease; }
+@keyframes riseIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.msg-row-user { justify-content: flex-end; }
+.msg-user {
+  max-width: 78%; background: var(--accent); color: #fff; padding: 11px 15px;
+  border-radius: 18px 18px 4px 18px; font-size: 14.5px; line-height: 1.45;
+}
+.msg-user-image { width: 100%; max-width: 200px; border-radius: 12px; margin-bottom: 6px; display: block; }
+
+.thinking-row { display: flex; align-items: center; gap: 8px; color: var(--mist); font-size: 13.5px; padding: 4px 2px; }
+
+.ai-card {
+  max-width: 92%; background: var(--surface-solid); border: 1px solid var(--surface-border);
+  border-radius: 18px; padding: 14px 16px; font-size: 14.5px; line-height: 1.55; color: var(--ink);
+}
+.ai-card-error { color: var(--danger); display: flex; flex-direction: column; gap: 8px; }
+.retry-btn { align-self: flex-start; background: var(--accent-soft); color: var(--accent); border: none; border-radius: 10px; padding: 7px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ai-card-header { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.globe-btn {
+  display: flex; align-items: center; justify-content: center; width: 30px; height: 30px;
+  background: var(--accent-soft); color: var(--accent);
+  border: none; border-radius: 50%; cursor: pointer; flex-shrink: 0;
+}
+.globe-btn:active { background: var(--accent); color: #fff; }
+.ai-short { font-weight: 650; font-size: 16px; margin-bottom: 6px; }
+.ai-detailed { color: var(--ink); opacity: 0.88; margin-bottom: 8px; }
+.bullet-list { margin: 4px 0 8px 18px; padding: 0; }
+.bullet-list li { margin-bottom: 4px; }
+.example-box {
+  background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; margin-top: 4px;
+}
+.example-label { display: block; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+.table-wrap { overflow-x: auto; margin: 6px 0 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { border: 1px solid var(--divider); padding: 6px 8px; text-align: left; }
+th { background: var(--accent-soft); font-weight: 600; }
+
+.compose-bar { padding: 8px 14px 18px; flex-shrink: 0; }
+.compose-image-preview { position: relative; width: 56px; height: 56px; margin-bottom: 8px; }
+.compose-image-preview img { width: 56px; height: 56px; object-fit: cover; border-radius: 12px; }
+.compose-image-remove {
+  position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--ink); color: var(--canvas); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.compose-row {
+  display: flex; align-items: center; gap: 6px; background: var(--surface);
+  backdrop-filter: blur(20px); border: 1px solid var(--surface-border);
+  border-radius: 24px; padding: 6px 6px 6px 10px;
+}
+.compose-icon-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center; color: var(--mist); cursor: pointer; flex-shrink: 0;
+}
+.compose-icon-btn:disabled { opacity: 0.4; }
+.mic-active { color: var(--danger); }
+.compose-input {
+  flex: 1; border: none; background: transparent; outline: none; font-size: 15px; color: var(--ink);
+  min-width: 0; font-family: inherit;
+}
+.compose-input::placeholder { color: var(--mist); }
+.send-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+}
+.send-btn:disabled { background: var(--divider); color: var(--mist); }
+
+.toast {
+  position: absolute; bottom: 96px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--canvas); padding: 9px 16px; border-radius: 999px;
+  font-size: 12.5px; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.25); z-index: 60;
+}
+
+/* drawer */
+.drawer-backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.32); opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease; z-index: 40;
+}
+.backdrop-open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 78%; max-width: 300px;
+  background: var(--surface-solid); transform: translateX(-100%); transition: transform 0.28s cubic-bezier(.2,.9,.3,1);
+  z-index: 50; padding: 70px 18px 24px; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(0,0,0,0.15);
+}
+.drawer-open { transform: translateX(0); }
+.drawer-profile { display: flex; align-items: center; gap: 12px; padding: 0 6px 18px; }
+.avatar {
+  width: 46px; height: 46px; border-radius: 50%; background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0;
+}
+.drawer-profile-name { font-size: 14.5px; font-weight: 650; }
+.drawer-profile-email { font-size: 12px; color: var(--mist); }
+.drawer-divider { height: 1px; background: var(--divider); margin: 8px 0; }
+.drawer-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 6px; border: none; background: transparent;
+  font-size: 14.5px; color: var(--ink); cursor: pointer; text-align: left; width: 100%; border-radius: 10px;
+}
+.drawer-item:active { background: var(--accent-soft); }
+.drawer-item-label { flex: 1; }
+.drawer-item-chevron { color: var(--mist); }
+.drawer-item-danger { color: var(--danger); }
+
+/* panels */
+.panel {
+  position: absolute; inset: 0; background: var(--canvas); transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(.2,.9,.3,1); z-index: 45; display: flex; flex-direction: column;
+}
+.panel-open { transform: translateX(0); }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 14px 10px; flex-shrink: 0; }
+.panel-title { font-size: 16px; font-weight: 650; }
+.panel-body { flex: 1; overflow-y: auto; padding: 6px 22px 30px; }
+.panel-paragraph { font-size: 14.5px; line-height: 1.65; color: var(--ink); margin-bottom: 14px; }
+
+.profile-avatar-big {
+  width: 76px; height: 76px; border-radius: 50%; background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700;
+  margin: 16px auto 14px;
+}
+.profile-name-big { text-align: center; font-size: 18px; font-weight: 650; }
+.profile-email-big { text-align: center; font-size: 13px; color: var(--mist); margin-bottom: 22px; }
+.stat-row { display: flex; gap: 12px; margin-bottom: 18px; }
+.stat-card { flex: 1; background: var(--accent-soft); border-radius: 16px; padding: 16px; text-align: center; }
+.stat-num { font-size: 22px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--mist); margin-top: 2px; }
+.profile-join { text-align: center; font-size: 12.5px; color: var(--mist); }
+
+.empty-text { color: var(--mist); font-size: 14px; padding: 30px 0; text-align: center; }
+.history-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent;
+  padding: 13px 4px; font-size: 14px; color: var(--ink); border-bottom: 1px solid var(--divider); cursor: pointer; text-align: left;
+}
+.history-item-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--divider); }
+.settings-label { display: flex; align-items: center; gap: 8px; font-size: 14.5px; }
+.segmented { display: flex; background: var(--divider); border-radius: 10px; padding: 3px; }
+.segmented-option { border: none; background: transparent; padding: 6px 12px; font-size: 12.5px; font-weight: 600; border-radius: 8px; color: var(--mist); cursor: pointer; }
+.segmented-active { background: var(--surface-solid); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+.settings-divider { height: 18px; }
+.settings-danger-label { font-size: 12px; color: var(--mist); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; }
+.danger-btn {
+  display: flex; align-items: center; gap: 8px; width: 100%; border: 1px solid var(--danger); color: var(--danger);
+  background: transparent; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+}
+
+.about-logo { display: flex; justify-content: center; margin: 18px 0 22px; }
+
+/* sources sheet */
+.sheet-backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.32); opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease; z-index: 55;
+}
+.sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface-solid);
+  border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform 0.28s cubic-bezier(.2,.9,.3,1);
+  z-index: 60; padding: 10px 20px 28px; max-height: 60%; overflow-y: auto;
+}
+.sheet-open { transform: translateY(0); }
+.sheet-handle { width: 36px; height: 4px; background: var(--divider); border-radius: 999px; margin: 0 auto 14px; }
+.sheet-title { font-size: 15px; font-weight: 650; margin-bottom: 12px; }
+.source-row { display: flex; align-items: flex-start; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--divider); gap: 10px; }
+.source-logo { width: 32px; height: 32px; border-radius: 9px; object-fit: cover; flex-shrink: 0; margin-top: 1px; background: var(--accent-soft); }
+.source-logo-fallback {
+  width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0; margin-top: 1px;
+  background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.source-info { min-width: 0; flex: 1; }
+.source-name { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-domain { font-size: 12px; color: var(--mist); margin-top: 1px; }
+.source-desc { font-size: 12.5px; color: var(--ink); opacity: 0.8; margin-top: 4px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.source-url { font-size: 11px; color: var(--mist); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-open {
+  display: flex; align-items: center; gap: 5px; border: none; background: var(--accent-soft); color: var(--accent);
+  border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+}
+`;
